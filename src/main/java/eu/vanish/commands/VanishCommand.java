@@ -52,7 +52,6 @@ public final class VanishCommand {
                     vanish.getServer()
                     , world
                     , new GameProfile(UUID.randomUUID(), " You're Vanished")
-                    , new ServerPlayerInteractionManager(world)
             );
         }
 
@@ -67,7 +66,7 @@ public final class VanishCommand {
             vanish.getServer().getPlayerManager().getPlayerList().forEach(playerEntity -> {
                 if (!playerEntity.equals(vanishingPlayer)) {
                     playerEntity.networkHandler.sendPacket(new PlayerListS2CPacket(PlayerListS2CPacket.Action.ADD_PLAYER, vanishingPlayer));
-                    playerEntity.networkHandler.sendPacket(new GameMessageS2CPacket(new TranslatableText("multiplayer.player.joined", new LiteralText(vanishingPlayer.getEntityName())).formatted(Formatting.YELLOW), MessageType.CHAT, NIL_UUID));
+                    playerEntity.networkHandler.sendPacket(new GameMessageS2CPacket(new TranslatableText("multiplayer.player.joined", new Object[]{vanishingPlayer.getDisplayName()}), MessageType.SYSTEM, NIL_UUID));
                     playerEntity.networkHandler.sendPacket(new PlayerSpawnS2CPacket(vanishingPlayer));
                     updateEquipment(vanishingPlayer, playerEntity);
                 }
@@ -91,8 +90,8 @@ public final class VanishCommand {
             vanish.getServer().getPlayerManager().getPlayerList().forEach(playerEntity -> {
                 if (!playerEntity.equals(vanishingPlayer)) {
                     playerEntity.networkHandler.sendPacket(new PlayerListS2CPacket(PlayerListS2CPacket.Action.REMOVE_PLAYER, vanishingPlayer));
-                    playerEntity.networkHandler.sendPacket(new GameMessageS2CPacket(new TranslatableText("multiplayer.player.left", new LiteralText(vanishingPlayer.getEntityName())).formatted(Formatting.YELLOW), MessageType.CHAT, NIL_UUID));
-                    playerEntity.networkHandler.sendPacket(new EntitiesDestroyS2CPacket(vanishingPlayer.getEntityId()));
+                    playerEntity.networkHandler.sendPacket(new GameMessageS2CPacket(new TranslatableText("multiplayer.player.left", new Object[]{vanishingPlayer.getDisplayName()}), MessageType.SYSTEM, NIL_UUID));
+                    playerEntity.networkHandler.sendPacket(new EntitiesDestroyS2CPacket(vanishingPlayer.getId()));
                 }
             });
 
@@ -121,7 +120,7 @@ public final class VanishCommand {
         }
 
         if (!equipmentList.isEmpty()) {
-            receiver.networkHandler.sendPacket(new EntityEquipmentUpdateS2CPacket(vanishingPlayer.getEntityId(), equipmentList));
+            receiver.networkHandler.sendPacket(new EntityEquipmentUpdateS2CPacket(vanishingPlayer.getId(), equipmentList));
         }
     }
 }
